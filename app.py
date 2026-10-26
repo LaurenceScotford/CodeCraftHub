@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 import json
 from datetime import date
 from pathlib import Path
@@ -115,6 +115,12 @@ def find_course(courses, course_id):
         (course for course in courses if course["id"] == course_id),
         None
     )
+
+
+@app.get("/")
+def serve_index():
+    # Serves index.html from the current working directory
+    return send_from_directory(".", "index.html")
 
 
 @app.get("/api/health")

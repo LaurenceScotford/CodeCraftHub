@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeCraftHub: Your Learning Management Platform</title>
+  <style>
+    /* Design Tokens and Theme Variables */
+    :root {
+      --primary: #8B5CF6;
+      --primary-hover: #7C3AED;
+      --primary-light: #EDE9FE;
+      --accent: #F59E0B;
+      --accent-hover: #D97706;
+      --accent-light: #FEF3C7;
+      --danger: #EF4444;
+      --danger-hover: #DC2626;
+      --danger-light: #FEE2E2;
+      --success: #10B981;
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --text: #1E293B;
+      --text-muted: #64748B;
+      --border: #E2E8F0;
+      --radius: 10px;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 1.5rem 1rem 3rem 1rem;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    header h1 {
+      font-size: 2.25rem;
+      color: var(--primary);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+    }
+
+    header p {
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+      font-size: 1.05rem;
+    }
+
+    /* Notification & Alert Banners */
+    #notification-container {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      max-width: 380px;
+      width: calc(100% - 3rem);
+      pointer-events: none;
+    }
+
+    .toast {
+      pointer-events: auto;
+      padding: 1rem 1.25rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      animation: slideIn 0.25s ease-out;
+      border-left: 6px solid transparent;
+      background: var(--surface);
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .toast-success {
+      border-left-color: var(--accent);
+      background-color: #FFFDF5;
+      color: #78350F;
+    }
+
+    .toast-error {
+      border-left-color: var(--danger);
+      background-color: #FEF2F2;
+      color: #991B1B;
+    }
+
+    .toast-info {
+      border-left-color: var(--primary);
+      background-color: #FBF9FF;
+      color: #5B21B6;
+    }
+
+    .toast button {
+      background: none;
+      border: none;
+      font-size: 1.15rem;
+      color: inherit;
+      cursor: pointer;
+      margin-left: 0.75rem;
+      opacity: 0.7;
+      line-height: 1;
+    }
+
+    .toast button:hover {
+      opacity: 1;
+    }
+
+    /* Backend Connection Status Banner */
+    .connection-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #CBD5E1;
+    }
+
+    .dot.connected { background: var(--success); }
+    .dot.disconnected { background: var(--danger); }
+    .dot.checking { background: var(--accent); }
+
+    /* Card Panels */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Forms & Inputs */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .form-group.full-width {
+      grid-column: span 2;
+    }
+
+    label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    label span.required {
+      color: var(--danger);
+    }
+
+    input[type="text"],
+    input[type="date"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.95rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #FFFFFF;
+      color: var(--text);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      font-family: inherit;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 85px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      padding: 0.65rem 1.25rem;
+      font-size: 0.95rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.15s ease, transform 0.05s ease, opacity 0.15s ease;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-accent {
+      background-color: var(--accent);
+      color: #FFFFFF;
+    }
+
+    .btn-accent:hover:not(:disabled) {
+      background-color: var(--accent-hover);
+    }
+
+    .btn-danger {
+      background-color: var(--danger);
+      color: #FFFFFF;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background-color: var(--danger-hover);
+    }
+
+    .btn-secondary {
+      background-color: #E2E8F0;
+      color: #334155;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background-color: #CBD5E1;
+    }
+
+    .btn-sm {
+      padding: 0.35rem 0.65rem;
+      font-size: 0.85rem;
+      border-radius: 4px;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .btn-outline:hover:not(:disabled) {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* Filter Toolbar */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 0.4rem 0.85rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-color: var(--primary);
+    }
+
+    /* Courses Table and Responsive Cards */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.925rem;
+      background: var(--surface);
+    }
+
+    thead {
+      background-color: #F1F5F9;
+      color: #475569;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    th, td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: #FAFAFD;
+    }
+
+    .course-title {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .course-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      max-width: 280px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Status Badges */
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge-not-started {
+      background-color: #F1F5F9;
+      color: #475569;
+      border: 1px solid #CBD5E1;
+    }
+
+    .badge-in-progress {
+      background-color: var(--accent-light);
+      color: #B45309;
+      border: 1px solid #FCD34D;
+    }
+
+    .badge-completed {
+      background-color: #D1FAE5;
+      color: #065F46;
+      border: 1px solid #A7F3D0;
+    }
+
+    .action-cell {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* Loading States */
+    .loading-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #FFFFFF;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .spinner-dark {
+      border: 2px solid rgba(139, 92, 246, 0.2);
+      border-top-color: var(--primary);
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 0.75rem;
+      stroke: var(--text-muted);
+    }
+
+    /* Modal Dialog with Sticky Header/Footer & Scrollable Body */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(3px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+      box-sizing: border-box;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: var(--surface);
+      width: 100%;
+      max-width: 550px;
+      max-height: min(90vh, calc(100vh - 40px));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      transform: translateY(20px);
+      transition: transform 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-backdrop.open .modal {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      background: var(--surface);
+    }
+
+    .modal-header h3 {
+      font-size: 1.25rem;
+      color: var(--text);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      line-height: 1;
+      padding: 0.25rem;
+      border-radius: 4px;
+      transition: color 0.15s ease;
+    }
+
+    .modal-close:hover {
+      color: var(--text);
+    }
+
+    /* Form inside modal acts as flex column to pin footer */
+    .modal-form {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Clean custom scrollbar for modal body */
+    .modal-body::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .modal-body::-webkit-scrollbar-track {
+      background: #F1F5F9;
+      border-radius: 3px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 3px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb:hover {
+      background: var(--primary);
+    }
+
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      background-color: #F8FAFC;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    /* Mobile Adaptations */
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .form-group.full-width {
+        grid-column: span 1;
+      }
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .filter-group {
+        justify-content: flex-start;
+      }
+      .course-desc {
+        max-width: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div id="notification-container" aria-live="polite"></div>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <h1>CodeCraftHub: Your Learning Management Platform</h1>
+      <p>Organize, schedule, and track all your courses in one place</p>
+    </header>
+
+    <!-- Backend API Connectivity Info Banner -->
+    <div class="connection-status">
+      <div class="status-indicator">
+        <span class="dot checking" id="connection-dot"></span>
+        <span id="connection-text">Checking backend API (http://127.0.0.1:5000)...</span>
+      </div>
+      <div>
+        <button class="btn btn-outline btn-sm" id="btn-refresh" onclick="fetchCourses()">
+          ↻ Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Section 1: Add Course Form -->
+    <section class="card" aria-labelledby="add-course-heading">
+      <h2 id="add-course-heading" class="card-title">Add New Course</h2>
+      <form id="add-course-form" onsubmit="handleCreateCourse(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="course-name">Course Name <span class="required">*</span></label>
+            <input type="text" id="course-name" name="name" placeholder="e.g. Master Flask REST APIs" required>
+          </div>
+
+          <div class="form-group">
+            <label for="course-status">Status <span class="required">*</span></label>
+            <select id="course-status" name="status" required>
+              <option value="Not Started" selected>Not Started</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="course-date">Target Date <span class="required">*</span></label>
+            <input type="date" id="course-date" name="target_date" required>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="course-desc">Description <span class="required">*</span></label>
+            <textarea id="course-desc" name="description" placeholder="Brief overview of course modules, prerequisites, or objectives..." required></textarea>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
+          <button type="submit" class="btn btn-primary" id="btn-submit-add">
+            <span>Add Course</span>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Section 2: Course List & Controls -->
+    <section class="card" aria-labelledby="courses-heading">
+      <div class="card-title">
+        <h2 id="courses-heading">Enrolled Courses</h2>
+        <span id="course-count" style="font-size: 0.95rem; color: var(--text-muted); font-weight: normal;">Loading...</span>
+      </div>
+
+      <!-- Filters -->
+      <div class="toolbar">
+        <div class="filter-group">
+          <button class="filter-btn active" onclick="setFilter('ALL', this)">All</button>
+          <button class="filter-btn" onclick="setFilter('Not Started', this)">Not Started</button>
+          <button class="filter-btn" onclick="setFilter('In Progress', this)">In Progress</button>
+          <button class="filter-btn" onclick="setFilter('Completed', this)">Completed</button>
+        </div>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">
+          Endpoint: <code>http://127.0.0.1:5000/api/courses</code>
+        </div>
+      </div>
+
+      <!-- Course Table -->
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 50px;">ID</th>
+              <th>Course</th>
+              <th>Target Date</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th style="text-align: right; width: 140px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="course-table-body">
+            <tr>
+              <td colspan="6" class="empty-state">
+                <div class="loading-spinner spinner-dark" style="margin-bottom: 0.5rem;"></div>
+                <p>Contacting server and loading courses...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal Dialog for Editing Course -->
+  <div class="modal-backdrop" id="edit-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-title">Edit Course</h3>
+        <button class="modal-close" onclick="closeEditModal()" aria-label="Close modal">&times;</button>
+      </div>
+      <form id="edit-course-form" class="modal-form" onsubmit="handleUpdateCourse(event)">
+        <div class="modal-body">
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="edit-course-id">Course ID (Read-only)</label>
+            <input type="text" id="edit-course-id" readonly style="background-color: #F1F5F9; color: #64748B;">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="edit-course-name">Course Name <span class="required">*</span></label>
+            <input type="text" id="edit-course-name" required>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="edit-course-status">Status <span class="required">*</span></label>
+            <select id="edit-course-status" required>
+              <option value="Not Started">Not Started</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="edit-course-date">Target Date <span class="required">*</span></label>
+            <input type="date" id="edit-course-date" required>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-course-desc">Description <span class="required">*</span></label>
+            <textarea id="edit-course-desc" required></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+          <button type="submit" class="btn btn-accent" id="btn-save-edit">
+            <span>Save Changes</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Vanilla JavaScript Logic -->
+  <script>
+    // Configuration: Support both relative (same-origin) and local Flask server port
+    const API_BASE_URL = (window.location.port === "5000" || window.location.pathname.startsWith("/api"))
+      ? "/api/courses"
+      : "http://127.0.0.1:5000/api/courses";
+
+    // Application State
+    let courses = [];
+    let currentFilter = "ALL";
+    let isConnected = false;
+
+    // Elements
+    const tableBody = document.getElementById("course-table-body");
+    const courseCountEl = document.getElementById("course-count");
+    const connectionDot = document.getElementById("connection-dot");
+    const connectionText = document.getElementById("connection-text");
+    const editModal = document.getElementById("edit-modal");
+
+    // Notification / Toast System
+    function showNotification(message, type = "info") {
+      const container = document.getElementById("notification-container");
+      const toast = document.createElement("div");
+      toast.className = `toast toast-${type}`;
+      
+      const textSpan = document.createElement("span");
+      textSpan.textContent = message;
+
+      const closeBtn = document.createElement("button");
+      closeBtn.innerHTML = "&times;";
+      closeBtn.onclick = () => toast.remove();
+
+      toast.appendChild(textSpan);
+      toast.appendChild(closeBtn);
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        if (toast.parentElement) {
+          toast.remove();
+        }
+      }, 5000);
+    }
+
+    // Update connection status display
+    function updateBackendStatus(connected, message) {
+      isConnected = connected;
+      connectionDot.className = "dot " + (connected ? "connected" : "disconnected");
+      connectionText.textContent = message;
+    }
+
+    // Helper: Normalize Date Strings for Display
+    function formatDate(dateStr) {
+      if (!dateStr) return "N/A";
+      try {
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr;
+        return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+      } catch (e) {
+        return dateStr;
+      }
+    }
+
+    // 1. GET /api/courses - Fetch all courses
+    async function fetchCourses() {
+      renderLoading();
+      try {
+        const response = await fetch(API_BASE_URL, {
+          method: "GET",
+          headers: { "Accept": "application/json" }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server returned error ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        courses = Array.isArray(data) ? data : [];
+        updateBackendStatus(true, "Backend online at 127.0.0.1:5000");
+        renderCourses();
+      } catch (err) {
+        console.error("Fetch error:", err);
+        updateBackendStatus(false, "Cannot connect to Flask server at http://127.0.0.1:5000");
+        showNotification("Failed to fetch courses. Ensure your Flask server is running.", "error");
+        renderEmpty("Unable to reach backend server. Please verify Flask is running on port 5000.");
+      }
+    }
+
+    // 2. POST /api/courses - Add course
+    async function handleCreateCourse(e) {
+      e.preventDefault();
+      const form = e.target;
+      const submitBtn = document.getElementById("btn-submit-add");
+
+      const name = form.name.value.trim();
+      const description = form.description.value.trim();
+      const targetDate = form.target_date.value;
+      const status = form.status.value;
+
+      if (!name || !description || !targetDate || !status) {
+        showNotification("Please fill in all required fields.", "error");
+        return;
+      }
+
+      // Backend expects 'target_completion_date' (fallback compatibility with 'target_date')
+      const payload = {
+        name: name,
+        description: description,
+        target_completion_date: targetDate,
+        target_date: targetDate,
+        status: status
+      };
+
+      setButtonLoading(submitBtn, true, "Adding...");
+
+      try {
+        const response = await fetch(API_BASE_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(result.error || `HTTP ${response.status}: Failed to create course`);
+        }
+
+        showNotification(`Course "${name}" created successfully!`, "success");
+        form.reset();
+        // Reset date to today's date if desirable, or leave blank
+        fetchCourses();
+      } catch (err) {
+        showNotification(err.message, "error");
+      } finally {
+        setButtonLoading(submitBtn, false, "Add Course");
+      }
+    }
+
+    // Open Edit Modal Dialog
+    function openEditModal(courseId) {
+      const course = courses.find(c => c.id === courseId);
+      if (!course) {
+        showNotification("Course not found.", "error");
+        return;
+      }
+
+      document.getElementById("edit-course-id").value = course.id;
+      document.getElementById("edit-course-name").value = course.name || "";
+      document.getElementById("edit-course-desc").value = course.description || "";
+      document.getElementById("edit-course-status").value = course.status || "Not Started";
+
+      // The date field could be named target_completion_date or target_date
+      const dateVal = course.target_completion_date || course.target_date || "";
+      document.getElementById("edit-course-date").value = dateVal;
+
+      editModal.classList.add("open");
+    }
+
+    function closeEditModal() {
+      editModal.classList.remove("open");
+    }
+
+    // 3. PUT /api/courses/{id} - Update course
+    async function handleUpdateCourse(e) {
+      e.preventDefault();
+      const saveBtn = document.getElementById("btn-save-edit");
+      const courseId = parseInt(document.getElementById("edit-course-id").value, 10);
+      const name = document.getElementById("edit-course-name").value.trim();
+      const description = document.getElementById("edit-course-desc").value.trim();
+      const status = document.getElementById("edit-course-status").value;
+      const targetDate = document.getElementById("edit-course-date").value;
+
+      if (!name || !description || !targetDate || !status) {
+        showNotification("All fields are required.", "error");
+        return;
+      }
+
+      const payload = {
+        name: name,
+        description: description,
+        target_completion_date: targetDate,
+        target_date: targetDate,
+        status: status
+      };
+
+      setButtonLoading(saveBtn, true, "Saving...");
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/${courseId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(result.error || `HTTP ${response.status}: Failed to update course`);
+        }
+
+        showNotification("Course updated successfully!", "success");
+        closeEditModal();
+        fetchCourses();
+      } catch (err) {
+        showNotification(err.message, "error");
+      } finally {
+        setButtonLoading(saveBtn, false, "Save Changes");
+      }
+    }
+
+    // 4. DELETE /api/courses/{id} - Remove course
+    async function deleteCourse(courseId, courseName) {
+      const confirmed = window.confirm(`Are you sure you want to delete "${courseName}" (ID: ${courseId})?`);
+      if (!confirmed) return;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/${courseId}`, {
+          method: "DELETE"
+        });
+
+        if (!response.ok && response.status !== 204) {
+          const result = await response.json().catch(() => ({}));
+          throw new Error(result.error || `HTTP ${response.status}: Failed to delete course`);
+        }
+
+        showNotification(`Course "${courseName}" deleted.`, "success");
+        fetchCourses();
+      } catch (err) {
+        showNotification(err.message, "error");
+      }
+    }
+
+    // Filter Logic
+    function setFilter(status, btnElement) {
+      currentFilter = status;
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      if (btnElement) btnElement.classList.add("active");
+      renderCourses();
+    }
+
+    // Render Table
+    function renderCourses() {
+      const filtered = currentFilter === "ALL" 
+        ? courses 
+        : courses.filter(c => c.status === currentFilter);
+
+      courseCountEl.textContent = `${filtered.length} of ${courses.length} courses`;
+
+      if (filtered.length === 0) {
+        renderEmpty(currentFilter === "ALL" ? "No courses found. Add your first course above!" : `No courses with status "${currentFilter}".`);
+        return;
+      }
+
+      tableBody.innerHTML = "";
+
+      filtered.forEach(course => {
+        const tr = document.createElement("tr");
+
+        // Format dates
+        const targetDate = course.target_completion_date || course.target_date || "N/A";
+        const createdAt = course.created_at ? formatDate(course.created_at) : "N/A";
+
+        // Status Badge Style
+        let badgeClass = "badge-not-started";
+        if (course.status === "In Progress") badgeClass = "badge-in-progress";
+        if (course.status === "Completed") badgeClass = "badge-completed";
+
+        tr.innerHTML = `
+          <td><strong>#${course.id}</strong></td>
+          <td>
+            <div class="course-title">${escapeHtml(course.name)}</div>
+            <div class="course-desc" title="${escapeHtml(course.description)}">${escapeHtml(course.description)}</div>
+          </td>
+          <td><code>${targetDate}</code></td>
+          <td><span class="badge ${badgeClass}">${escapeHtml(course.status)}</span></td>
+          <td style="color: var(--text-muted); font-size: 0.85rem;">${createdAt}</td>
+          <td style="text-align: right;">
+            <div class="action-cell" style="justify-content: flex-end;">
+              <button class="btn btn-secondary btn-sm" onclick="openEditModal(${course.id})">Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteCourse(${course.id}, '${escapeJs(course.name)}')">Remove</button>
+            </div>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+
+    function renderLoading() {
+      courseCountEl.textContent = "Loading...";
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="6" class="empty-state">
+            <div class="loading-spinner spinner-dark" style="margin-bottom: 0.75rem;"></div>
+            <p>Fetching courses from http://127.0.0.1:5000/api/courses...</p>
+          </td>
+        </tr>
+      `;
+    }
+
+    function renderEmpty(message) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="6" class="empty-state">
+            <svg fill="none" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+            </svg>
+            <p>${escapeHtml(message)}</p>
+          </td>
+        </tr>
+      `;
+    }
+
+    function setButtonLoading(button, isLoading, text) {
+      button.disabled = isLoading;
+      button.innerHTML = isLoading 
+        ? `<span class="loading-spinner"></span> <span>${text}</span>` 
+        : `<span>${text}</span>`;
+    }
+
+    // Helper functions for escaping HTML and JS to prevent injection
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function escapeJs(str) {
+      if (!str) return "";
+      return String(str).replace(/'/g, "\\'").replace(/"/g, '\\"');
+    }
+
+    // Close modal if backdrop is clicked
+    editModal.addEventListener("click", (e) => {
+      if (e.target === editModal) {
+        closeEditModal();
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && editModal.classList.contains("open")) {
+        closeEditModal();
+      }
+    });
+
+    // Initialize on page load
+    window.addEventListener("DOMContentLoaded", () => {
+      fetchCourses();
+    });
+  </script>
+</body>
+</html>
